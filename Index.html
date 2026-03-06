@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BluePay App</title>
+<style>
+body{margin:0;font-family:Arial;background:#0b1ea8;color:white;}
+header{display:flex;justify-content:space-between;padding:15px;background:#081a8c;}
+header .logo{font-weight:bold;font-size:22px;}
+button,input,select,textarea{padding:12px;border:none;border-radius:8px;}
+button{background:#2ecc71;color:white;font-size:16px;margin-top:10px;width:100%;cursor:pointer;}
+input,select,textarea{width:100%;margin-top:10px;}
+.container{padding:20px;}
+.card{background:#111;padding:20px;margin:10px 0;border-radius:15px;}
+.hidden{display:none;}
+.info-section button{background:#1c1c1c;color:white;margin:5px 0;width:100%;}
+.info-box{background:#222;padding:15px;margin:10px 0;border-radius:12px;}
+.nav-buttons{display:flex;justify-content:space-around;background:#081a8c;padding:10px;position:fixed;width:100%;bottom:0;}
+.nav-buttons div{cursor:pointer;text-align:center;font-size:14px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="container">
+<h2>Login</h2>
+<input id="loginEmail" type="email" placeholder="Email">
+<input id="loginPassword" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p>Don't have an account? <span style="color:#2ecc71;cursor:pointer" onclick="showPage('registerPage')">Register</span></p>
+</div>
+
+<!-- REGISTER PAGE -->
+<div id="registerPage" class="container hidden">
+<h2>Register</h2>
+<input id="regName" placeholder="Full Name">
+<input id="regEmail" type="email" placeholder="Email">
+<input id="regPassword" type="password" placeholder="Password">
+<button onclick="register()">Register</button>
+<p>Already have an account? <span style="color:#2ecc71;cursor:pointer" onclick="showPage('loginPage')">Login</span></p>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="dashboardPage" class="container hidden">
+<header>
+<div>☰</div>
+<div class="logo">BLUEPAY</div>
+<div id="bell">🔔</div>
+</header>
+
+<div id="liveNotifications" class="card"></div>
+
+<div class="card">
+<div><b>Available Balance:</b> P<span id="userBalance">0</span></div>
+</div>
+
+<div class="card" style="display:flex;flex-direction:column;">
+<button onclick="showPage('withdrawPage')">💸 Withdraw</button>
+<button onclick="showPage('buyBPCPage')">🎁 Buy BPC</button>
+<button onclick="shareReferral()">🎁 Referral</button>
+<button onclick="showPage('profilePage')">👤 Profile</button>
+<button onclick="showPage('supportPage')">📩 Support</button>
+<button onclick="showPage('historyPage')">📜 History</button>
+</div>
+
+<div class="card info-section">
+<button onclick="showInfo('how')">How It Works</button>
+<button onclick="showInfo('users')">Number of Users</button>
+<button onclick="showInfo('buy')">Important Information</button>
+</div>
+
+<div id="infoBox" class="info-box hidden"></div>
+
+<div class="nav-buttons">
+<div onclick="showPage('dashboardPage')">🏠 Home</div>
+<div onclick="showPage('dashboardPage')">💰 Wallet</div>
+<div onclick="showPage('dashboardPage')">➕ Services</div>
+<div onclick="showPage('dashboardPage')">📜 Data</div>
+<div onclick="showPage('profilePage')">👤 Profile</div>
+</div>
+</div>
+
+<!-- WITHDRAW PAGE -->
+<div id="withdrawPage" class="container hidden">
+<h2>Withdraw Funds</h2>
+<label>Withdrawal Method</label>
+<select id="withdrawMethod" onchange="changeWithdrawMethod()">
+<option value="bank">Bank Transfer</option>
+<option value="orange">Orange Money</option>
+</select>
+
+<div id="bankFields" class="card">
+<input type="text" placeholder="Account Name">
+<input type="number" placeholder="Account Number">
+<select>
+<option>Select Bank</option>
+<option>First National Bank Botswana</option>
+<option>Absa Bank Botswana</option>
+<option>Stanbic Bank Botswana</option>
+<option>Standard Chartered Botswana</option>
+<option>Bank Gaborone</option>
+</select>
+<input type="number" placeholder="Amount">
+<input type="text" placeholder="Enter BPC Code">
+</div>
+
+<div id="orangeFields" class="card hidden">
+<input type="number" placeholder="Orange Money Number">
+<input type="number" placeholder="Amount">
+<input type="text" placeholder="Enter BPC Code">
+</div>
+
+<div class="card"><b>Available Balance:</b> P<span id="withdrawBalance">0</span></div>
+<button onclick="withdraw()">Withdraw</button>
+<button onclick="showPage('dashboardPage')">Back</button>
+</div>
+
+<!-- BUY BPC PAGE -->
+<div id="buyBPCPage" class="container hidden">
+<h2>Buy BPC</h2>
+<div class="card">
+<label>Full Name</label>
+<input id="bpcName" readonly>
+<label>Email</label>
+<input id="bpcEmail" readonly>
+<label>BPC Amount</label>
+<input id="bpcAmount" type="number" placeholder="Enter amount">
+<button onclick="processBPC()">Pay</button>
+
+<div id="bpcPaymentSection" class="hidden card">
+<div class="card">
+<h3>Payment Instructions (Orange Money)</h3>
+1️⃣ Dial *145#<br>
+2️⃣ Select Orange Money Transactions<br>
+3️⃣ Enter PIN<br>
+4️⃣ Select International Money Transfer<br>
+5️⃣ Choose Kenya<br>
+6️⃣ Enter Recipient: 724940251<br>
+7️⃣ Enter Amount: 1050 BWP<br>
+8️⃣ Confirm payment
+</div>
+<label>Upload Payment Proof</label>
+<input type="file" id="bpcProof">
+<button onclick="submitBPC()">Submit Payment</button>
+</div>
+</div>
+<button onclick="showPage('dashboardPage')">Back</button>
+</div>
+
+<!-- PROFILE PAGE -->
+<div id="profilePage" class="container hidden">
+<h2>Edit Profile</h2>
+<div class="card">
+<label>Full Name</label>
+<input id="profileName">
+<label>Email</label>
+<input id="profileEmail">
+<label>Phone Number</label>
+<input id="profilePhone">
+<label>Password</label>
+<input id="profilePassword" type="password">
+<button onclick="saveProfile()">Save Changes</button>
+<button onclick="showPage('dashboardPage')">Back</button>
+</div>
+</div>
+
+<!-- SUPPORT PAGE -->
+<div id="supportPage" class="container hidden">
+<h2>Help & Support</h2>
+<div class="card">
+<input id="supportName" placeholder="Your Name">
+<input id="supportEmail" placeholder="Email">
+<textarea id="supportMessage" placeholder="Describe your problem"></textarea>
+<button onclick="submitSupport()">Submit Issue</button>
+<button onclick="showPage('dashboardPage')">Back</button>
+</div>
+</div>
+
+<!-- HISTORY PAGE -->
+<div id="historyPage" class="container hidden">
+<h2>Transaction History</h2>
+<div id="historyContainer"></div>
+<button onclick="showPage('dashboardPage')">Back</button>
+</div>
+
+<script>
+// Page navigation
+function showPage(page){
+const pages = ['loginPage','registerPage','dashboardPage','withdrawPage','buyBPCPage','profilePage','supportPage','historyPage'];
+pages.forEach(p=>document.getElementById(p).classList.add('hidden'));
+document.getElementById(page).classList.remove('hidden');
+}
+
+// USER DATA
+let currentUser = JSON.parse(localStorage.getItem("currentUser")) || {name:"Jessica Smith",email:"jessica@email.com",balance:200000,phone:"",password:"1234"};
+document.getElementById("userBalance").innerText = currentUser.balance;
+document.getElementById("withdrawBalance").innerText = currentUser.balance;
+document.getElementById("bpcName").value = currentUser.name;
+document.getElementById("bpcEmail").value = currentUser.email;
+
+// LOGIN & REGISTER
+function login(){
+let email=document.getElementById("loginEmail").value;
+let password=document.getElementById("loginPassword").value;
+if(email===currentUser.email && password===currentUser.password){showPage('dashboardPage');alert("Login Successful");}else{alert("Invalid credentials");}
+}
+function register(){
+currentUser={name:document.getElementById("regName").value,email:document.getElementById("regEmail").value,password:document.getElementById("regPassword").value,balance:200000,phone:""};
+localStorage.setItem("currentUser",JSON.stringify(currentUser));
+alert("Account created successfully!");
+showPage('dashboardPage');
+document.getElementById("userBalance").innerText=currentUser.balance;
+document.getElementById("withdrawBalance").innerText=currentUser.balance;
+document.getElementById("bpcName").value=currentUser.name;
+document.getElementById("bpcEmail").value=currentUser.email;
+}
+
+// WITHDRAW
+function changeWithdrawMethod(){
+let method=document.getElementById("withdrawMethod").value;
+if(method==="bank"){document.getElementById("bankFields").classList.remove("hidden");document.getElementById("orangeFields").classList.add("hidden");}
+else{document.getElementById("bankFields").classList.add("hidden");document.getElementById("orangeFields").classList.remove("hidden");}
+}
+function withdraw(){
+alert("Withdrawal request submitted successfully!");
+}
+
+// BUY BPC
+function processBPC(){
+let btn=event.target;
+btn.innerText="Processing...";
+setTimeout(()=>{btn.innerText="Pay";document.getElementById("bpcPaymentSection").classList.remove("hidden");},10000);
+}
+function submitBPC(){alert("Payment submitted. Admin will verify.");}
+
+// PROFILE
+function saveProfile(){
+currentUser.name=document.getElementById("profileName").value;
+currentUser.email=document.getElementById("profileEmail").value;
+currentUser.phone=document.getElementById("profilePhone").value;
+currentUser.password=document.getElementById("profilePassword").value;
+localStorage.setItem("currentUser",JSON.stringify(currentUser));
+alert("Profile updated successfully!");
+document.getElementById("userBalance").innerText=currentUser.balance;
+document.getElementById("bpcName").value=currentUser.name;
+document.getElementById("bpcEmail").value=currentUser.email;
+}
+
+// SUPPORT
+function submitSupport(){
+let issues=JSON.parse(localStorage.getItem("supportIssues"))||[];
+issues.push({name:document.getElementById("supportName").value,email:document.getElementById("supportEmail").value,message:document.getElementById("supportMessage").value});
+localStorage.setItem("supportIssues",JSON.stringify(issues));
+alert("Issue submitted successfully!");
+}
+
+// INFO BOX
+function showInfo(type){
+let box=document.getElementById("infoBox");box.classList.remove("hidden");
+if(type==="how"){box.innerHTML="<h3>How It Works</h3>1️⃣ Register an account<br>2️⃣ Buy BPC<br>3️⃣ Use BPC services<br>4️⃣ Withdraw funds";}
+if(type==="users"){box.innerHTML="<h3>Number of Users</h3>BluePay has over <b>10,000,000+ users</b>";}
+if(type==="buy"){box.innerHTML="<h3>Important Information on Buying BPC</h3><b>Payment Instructions (Orange Money):</b><br>1️⃣ Dial *145#<br>2️⃣ Select Orange Money Transactions<br>3️⃣ Enter PIN<br>4️⃣ Select International Money Transfer<br>5️⃣ Choose Kenya<br>6️⃣ Enter Recipient: 724940251<br>7️⃣ Enter Amount: 1050 BWP<br>8️⃣ Confirm payment";}
+}
+
+// REFERRAL
+function shareReferral(){
+let referralCode=currentUser.name.toUpperCase()+"123";
+let message=`Hi! Join BluePay and use my referral code: ${referralCode} to get started. Download here: https://yourprojectlink.com`;
+window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,'_blank');
+}
+
+// LIVE NOTIFICATIONS
+const names = ["John","Ahmed","Lerato","Tshepo","PulaUser"];
+function showNotification() {
+const randomName = names[Math.floor(Math.random()*names.length)];
+const randomAmount = Math.floor(Math.random()*50000)+1000;
+document.getElementById("liveNotifications").innerText=`✔ ${randomName} just withdrew P${randomAmount.toLocaleString()}`;
+}
+setInterval(showNotification,10000);
+
+// TRANSACTION HISTORY DEMO
+let transactions = JSON.parse(localStorage.getItem("transactions"))||[
+{type:"Withdraw",amount:20000,date:"2026-03-06 10:30"},
+{type:"Deposit",amount:50000,date:"2026-03-05 14:15"},
+{type:"Buy BPC",amount:1050,date:"2026-03-05 16:00"}
+];
+const historyContainer=document.getElementById("historyContainer");
+transactions.forEach(tx=>{historyContainer.innerHTML+=`<div class="card"><b>${tx.type}</b> – P${tx.amount.toLocaleString()}<br><small>${tx.date}</small></div>`});
+</script>
+
+</body>
+</html>
